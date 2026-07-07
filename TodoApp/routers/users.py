@@ -1,13 +1,15 @@
 from typing import Annotated
 from pydantic import BaseModel, Field
-from fastapi import APIRouter, Depends, HTTPException, Path
+from fastapi import APIRouter, Depends, HTTPException, Path, Request, Form
 from sqlalchemy.orm import Session
 from starlette import status
 from ..models import Todos, Users
 from ..database import  SessionLocal
 from .auth import get_current_user
 from passlib.context import CryptContext
+from fastapi.templating import Jinja2Templates
 
+templates = Jinja2Templates(directory="TodoApp/templates")
 router = APIRouter(
     prefix='/users',
     tags=['users']
@@ -31,7 +33,76 @@ class UserVerification(BaseModel):
     new_password:str = Field(min_length=6)
 
 
+#page
+@router.get("/profile")
+async def render_profile_page(request: Request):
 
+    user = await get_current_user(
+        request.cookies.get("access_token")
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="profile.html",
+        context={
+            "request": request,
+            "user": user
+        }
+    )
+
+@router.get("/change-password")
+async def render_change_password_page(
+        request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="change-password.html",
+        context={"request": request}
+    )
+@router.post("/change-password")
+async def change_password(
+        request: Request,
+        db: db_dependency,
+        current_password: str = Form(...),
+        new_password: str = Form(...)
+):
+
+    current_user = await get_current_user(
+        request.cookies.get("access_token")
+    )
+
+    user = db.query(Users).filter(
+        Users.id == current_user.get("id")
+    ).first()
+
+    if not bcrypt_context.verify(
+            current_password,
+            user.hashed_password):
+        return templates.TemplateResponse(
+            request=request,
+            name="change-password.html",
+            context={
+                "request": request,
+                "msg": "Current password is incorrect"
+            }
+        )
+
+    user.hashed_password = bcrypt_context.hash(
+        new_password
+    )
+
+    db.commit()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="change-password.html",
+        context={
+            "request": request,
+            "msg": "Password updated successfully"
+        }
+    )
+
+#Endpoints
 @router.get('/', status_code=status.HTTP_200_OK)
 async def get_user(user:user_dependency,db: db_dependency):
     if user is None:
@@ -59,7 +130,6 @@ async def change_phone_number(user: user_dependency,db: db_dependency,phone_numb
     user_model.phone_number=phone_number
     db.add(user_model)
     db.commit()
-
 
 
 

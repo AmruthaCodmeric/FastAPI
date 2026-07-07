@@ -11,7 +11,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-SQLALCHEMY_DATABASE_URL = 'sqlite:///./todosapp.db'
+"""SQLALCHEMY_DATABASE_URL = 'sqlite:///./todosapp.db'"""
+SQLALCHEMY_DATABASE_URL = (
+"postgresql://neondb_owner:npg_qXJDtf07GVSc@ep-solitary-bar-aos6xhkl-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require"
+)
 
 """ SQLALCHEMY_DATABASE_URL = 'postgresql://postgres:1357900@localhost/TodoApplicationDatabase' """
 
@@ -22,7 +25,11 @@ SQLALCHEMY_DATABASE_URL = 'sqlite:///./todosapp.db'
 #below code was only used for sqlite
 """ engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={'check_same_thread': False})"""
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+"""engine = create_engine(SQLALCHEMY_DATABASE_URL)"""
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_pre_ping=True
+)
 #SessionLocal-> perform database operations.(db.add(todo))
 #sessionmaker is a factory that creates sessions.Instead of manually creating sessions every time, you define a template:
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
