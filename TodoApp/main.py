@@ -14,6 +14,8 @@ from fastapi.responses import RedirectResponse
 
 app = FastAPI()
 
+
+
 """models.Base.metadata.create_all(bind=engine)"""
 Base.metadata.create_all(bind=engine)
 
@@ -32,6 +34,8 @@ def test(request: Request):
 def health_check():
     return {'status':'Healthy'}
 
+#i'm here to testing 
+#i'm here to testing 
 app.include_router(auth.router)
 app.include_router(todos.router)
 
