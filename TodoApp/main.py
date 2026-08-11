@@ -33,9 +33,6 @@ def test(request: Request):
 @app.get("/healthy")
 def health_check():
     return {'status':'Healthy'}
-
-#i'm here to testing 
-#i'm here to testing 
 app.include_router(auth.router)
 app.include_router(todos.router)
 
